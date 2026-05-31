@@ -1,7 +1,7 @@
 # data-cleaning
 # use pandas to clean stock datas
 
-## 读取 CSV 文件
+## read CSV
 
 ```python
 import pandas as pd
@@ -18,6 +18,31 @@ stock["date"] = pd.to_datetime(
 )
 ```
 
+## delete repeated data
+
+```python
+stock = stock.drop_duplicates()
+```
+
+## find extreme price 
+```python
+extreme_price = (
+    (stock["row_max_price"] > 3 * stock["median_close"]) |
+    (stock["row_min_price"] < 0.3 * stock["median_close"])
+)
+```
+
+## find extreme volume
+```python
+extreme_volume = (
+    (stock["volume"] > 20 * stock["median_volume"]) |
+    (
+        (stock["volume"] > 0) &
+        (stock["volume"] < 0.001 * stock["median_volume"])
+    )
+)
+```
+
 ## delete unreasonable price
 
 ```python
@@ -28,4 +53,9 @@ stock = stock[
     (stock["close"] > 0) &
     (stock["volume"] >= 0)
 ]
+```
+
+## delete abnormal rows
+```python
+stock_clean = stock.loc[~abnormal_mask].copy()
 ```
