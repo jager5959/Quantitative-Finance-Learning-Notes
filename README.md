@@ -1,5 +1,5 @@
 # data-cleaning
-# 使用 pandas 清洗股票数据
+# use pandas to clean stock datas
 
 ## 读取 CSV 文件
 
@@ -9,7 +9,7 @@ import pandas as pd
 stock = pd.read_csv("dirty_stock_daily_ohlcv.csv")
 ```
 
-## 转换日期格式
+## transform to datetime
 
 ```python
 stock["date"] = pd.to_datetime(
@@ -18,7 +18,7 @@ stock["date"] = pd.to_datetime(
 )
 ```
 
-## 删除不合理的价格
+## delete unreasonable price
 
 ```python
 stock = stock[
