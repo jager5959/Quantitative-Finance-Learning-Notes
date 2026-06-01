@@ -1,0 +1,228 @@
+1  Preliminaries
+  This book is concerned with the nuts and bolts of manipulating, processing, cleaning, and crunching data in Python.(Data contains tabular or spreadsheet-like data, matrices, multiple tables of data and time series).
+  Python can be the glue, and it can help solve "Two language problem", but it is slow and can't execute truly multithreaded, parallel code.
+  Essential Python Libraries: NumPy(ndarray,fast array-processing capabilities), pandas(high-level data structures and functions, working with structured or tabular data), matplotlib(producing plots and other two-dimensional data visualizations), 
+2  Python Language Basics, IPython, and Jupyter Notebooks
+  Some basic concept about Python.
+3  Built-In Data Structures, Functions, and Files
+  Tuple(1,2,3): fixed-length, immutable sequence
+    If an object inside a tuple is mutable, such as a list, you can modify it in place
+    + is allowed. And you can multiply a tuple by *x, but the objects are not copied, just the addresses.
+    You can unpack tuples like this:tup = 4, 5, (6, 7)             a, b, (c, d) = tup
+    or:a, b, *rest = tup, there *rest is a list of rest values.
+  List[1,2,3]: muttable sequence
+    insert, append, pop(index), remove(value), in(to check if the value is in the list) are allowed.
+    + and extend may be similar, but extend means appending some values to a existing list, so its cost is lower.
+    sort is allowed.
+    use[start:end:step] to slice, notice that end is not included. Negative index means the index relative to the end. step = -1 can help you reverse the list.
+  Dictionary{a:b,c:d}:
+    "a"(means a index) in d1 is allowed.
+    del d1[index] or value = d1.pop(index)
+    list(d1.keys()) help you transform keys to a list. Values can be used too.
+    v = d1.get(key, default_value) help you get the value when the key exists, otherwise you get the default_value.
+    d1.setdefault(letter, []).append(v) help you initialize the value when it not exists. But if you use defaultdict in collections, it can be done naturally.
+    Keys should be hash-freely, otherwise a list can't be a key because it is muttable.
+  Set{a,b,c,d}:unordered and unique
+    a.union(b) or |, a.intersection(b) or & are allowed. All of the logical set operations have in-place counterparts
+    set elements generally must be immutable, and they must be hashable
+  Built-In Sequence Functions:
+    enumerate, which returns a sequence of (i, value) tuples:
+    The sorted function returns a new sorted list from the elements of any sequence:
+    zip “pairs” up the elements of a number of lists, tuples, or other sequences to create a list of tuples. Its length is decided by the shortest sequence it received.
+    reversed iterates over the elements of a sequence in reverse order:
+  List, Set, and Dictionary Comprehensions:
+    [expr for value in collection if condition]
+    equals to:
+      result = []
+      for value in collection:
+        if condition:
+          result.append(expr)
+  Functions: 
+    basic concepts are just like C++
+    You can put functions into a sequence so that you can use every function through "for".
+    Lambda: consisting of a single statement, the result of which is the return value
+    Generators:Since generators produce output one element at a time versus an entire list all at once, it can help your program use less memory.
+    Generator expressions help you define it in a simple way.
+    Errors and Exception Handling:try;except;finally.
+  Files and the Operating System:
+    open:)
+    read help you get some characters
+4  NumPy Basics: Arrays and Vectorized Computation
+  it can just use nd*10 to modify every element in the ndarray.
+  dtype can get the type. astype can convert the data type
+  You can use some function to do the operation(sqrt,exp)
+  np.where(cond, xarr, yarr)
+5  Getting Started with pandas
+  Datastructures:
+    Series: 
+      containing a sequence of values of the same type, but you can define index by yourself: obj2 = pd.Series([4, 7, -5, 3], index=["d", "b", "a", "c"])
+      Another way to think about a Series is as a fixed-length, ordered dictionary, as it is a mapping of index values to data values.
+      The isna and notna functions in pandas should be used to detect missing data
+      it automatically aligns by index label in arithmetic operation
+      Both the Series object itself and its index have a name attribute
+    DataFrame:
+      a rectangular table of data and contains an ordered, named collection of columns, each of which can be a different value type
+      head method selects only the first five row, tail is similar
+      If you specify a sequence of columns, the DataFrame’s columns will be arranged in that order
+      If you pass a column that isn’t contained in the dictionary, it will appear with missing values in the result
+      Columns can be modified by assignment. 
+      If you assign a Series, its labels will be realigned exactly to the DataFrame’s index
+    Index objects are immutable and thus can’t be modified by the user.
+  Some Function:
+    reindex, which means to create a new object with the values rearranged to align with the new index. 
+    method option allows us to do this, using a method such as ffill, which forward-fills the values
+    drop method can delete values by indices and return them.
+    use [] can help you take the sections, and you can use various things like:
+      obj[["b", "a", "d"]], obj[[1, 3]], obj[obj < 2], data[data["three"] > 5]
+      the preferred way to select index values is with the special loc operator, because it can reduce different meanings
+      Since loc operator indexes exclusively with labels, there is also an iloc operator that indexes exclusively with integers to work consistently whether or not the index contains integers
+      Assigning values using these methods modifies the corresponding section of the Series:
+      you can use operation between two Pandas datastructure. values in same index will be calculated together. Otherwise, some values that don't have the corresponding value in other datastructures will be regarded as NaN.
+      sort_index, 
+    Summarizing and Computing Descriptive Statistics: please read the original book, some tricky things
+6  Data Loading, Storage, and File Formats
+  6.1 Reading and Writing Data in Text Format
+
+  Main idea
+  This section explains how pandas reads tabular data into DataFrame objects. read_csv is the central tool, but pandas also supports formats such as fixed-width files, Excel, HTML, JSON, SQL, XML, Parquet, and others. The key problem is that real-world data files are often messy, so pandas provides many options for parsing them correctly.
+  
+  Basic CSV reading
+  pd.read_csv() can read ordinary comma-separated files directly. If the file has no header row, you can use header=None or manually provide column names with names.
+  
+  Index and column control
+  The index_col argument lets you choose one column as the row index. You can also pass multiple columns to create a hierarchical index.
+  
+  Irregular delimiters
+  Some files are separated by whitespace or other patterns rather than commas. In those cases, you can use sep, including regular expressions such as \s+.
+  
+  Skipping unwanted rows
+  Files may contain comments, explanations, or useless lines before the actual data. skiprows lets you ignore specific rows during loading.
+  
+  Missing values
+  pandas automatically treats values such as empty strings, NA, and NULL as missing values. You can customize this behavior with na_values and keep_default_na.
+  
+  
+  Reading Text Files in Pieces
+  
+  Previewing large files
+  For large files, you may not want to load everything at once. nrows lets you read only the first few rows to inspect the file structure.
+  
+  Chunked reading
+  chunksize allows pandas to read a file piece by piece. This returns a TextFileReader, which can be looped over to process large datasets gradually.
+  
+  Practical use
+  Chunking is useful when the file is too large for memory. You can calculate summaries chunk by chunk, then combine the results.
+  
+  
+  Writing Data to Text Format
+  
+  Exporting to CSV
+  A DataFrame can be written to a CSV file using to_csv. By default, pandas writes both row labels and column labels.
+  
+  Controlling output format
+  You can change the delimiter with sep, control missing-value display with na_rep, and remove row or column labels with index=False or header=False.
+  
+  Selecting columns
+  You can export only chosen columns by using the columns argument. This is useful when you do not want to save the whole DataFrame.
+  
+  
+  Working with Other Delimited Formats
+  
+  Manual parsing
+  Most tabular files can be handled by pandas, but malformed files may require manual processing. Python’s built-in csv module can read files with simple one-character delimiters.
+  
+  CSV dialects
+  The csv module lets you define details such as delimiter, quote character, line terminator, and quoting style. This is useful when a file does not follow the standard CSV format.
+  
+  Limits of manual tools
+  For complex or multi-character delimiters, the csv module may not be enough. In those cases, string methods or regular expressions may be needed, though pandas can usually solve the problem with the right options.
+  
+  
+  JSON Data
+  
+  What JSON is
+  JSON is a common format for data exchanged through web applications and HTTP requests. It is more flexible than CSV because it can store nested lists and dictionaries.
+  
+  Reading and writing JSON
+  Python’s json.loads() converts JSON strings into Python objects. json.dumps() converts Python objects back into JSON.
+  
+  JSON and pandas
+  JSON data can often be converted into a DataFrame, especially when it is a list of dictionaries. pandas also provides read_json() and to_json() for direct JSON input and output.
+  
+  
+  XML and HTML: Web Scraping
+  
+  Reading HTML tables
+  pd.read_html() can automatically find tables inside HTML files and convert them into DataFrame objects. It returns a list because one web page may contain multiple tables.
+  
+  From web table to analysis
+  After an HTML table is loaded, you can clean and analyze it like any other pandas data. The chapter shows this with bank-failure data and date-based counting.
+  
+  Reading XML
+  XML is more hierarchical than CSV or HTML tables, so it often requires more careful parsing. You can use lxml.objectify manually or use pandas’ read_xml() for simpler cases.
+  
+  
+  6.2 Binary Data Formats
+  
+  Pickle
+  pandas objects can be saved with to_pickle() and loaded with read_pickle(). Pickle is mainly useful for short-term Python-only storage, because future compatibility is not guaranteed.
+  
+  Other binary formats
+  pandas supports formats such as HDF5, ORC, and Parquet. These formats can be faster and more reliable than text files for large or structured datasets.
+  
+  
+  Reading Microsoft Excel Files
+  
+  Reading Excel
+  pandas can read Excel files using ExcelFile or read_excel. These tools depend on packages such as xlrd and openpyxl.
+  
+  Multiple sheets
+  ExcelFile is useful when working with files that contain multiple sheets. You can inspect sheet names and parse only the sheet you need.
+  
+  Writing Excel
+  A DataFrame can be exported to Excel with to_excel. For more control, you can use ExcelWriter.
+  
+  
+  Using HDF5 Format
+  
+  What HDF5 is
+  HDF5 is designed for storing large amounts of scientific array data. It can store multiple datasets and metadata inside one file.
+  
+  Why HDF5 is useful
+  HDF5 supports compression and can efficiently read or write small parts of a large dataset. This makes it useful when data is too large to fit comfortably in memory.
+  
+  HDFStore
+  pandas provides HDFStore, which works like a dictionary for storing and retrieving pandas objects. It supports fixed and table formats, with table allowing query operations.
+  
+  Warning
+  HDF5 is not a database. It is best for “write once, read many” workflows, and simultaneous writing can corrupt the file.
+  
+  
+  6.3 Interacting with Web APIs
+  
+  Main idea
+  Many websites provide data through APIs, often in JSON format. The chapter recommends using the requests package to access such data from Python.
+  
+  Basic workflow
+  Use requests.get() to make an HTTP request, then call raise_for_status() to check for errors. After that, .json() converts the response into Python objects.
+  
+  Converting API data
+  API responses are often lists of dictionaries. You can pass them to DataFrame and select only the fields you need for analysis.
+  
+  
+  6.4 Interacting with Databases
+  
+  Why databases matter
+  In business settings, data is often stored in SQL databases rather than text or Excel files. Common SQL databases include SQL Server, PostgreSQL, and MySQL.
+  
+  Low-level database access
+  The chapter first shows how to use SQLite with Python’s built-in sqlite3 module. This requires creating a connection, executing SQL, fetching rows, and manually converting results into a DataFrame.
+  
+  Easier pandas workflow
+  SQLAlchemy reduces differences between database systems. pandas’ read_sql() can read query results directly into a DataFrame, which is usually the cleaner method.
+  
+  
+  6.5 Conclusion
+  
+  Final message
+  Data loading is often the first step in data analysis. This chapter gives the basic tools for reading data from files, databases, and web APIs, preparing for later chapters on cleaning, wrangling, visualization, and time series.
